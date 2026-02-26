@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Extension Control Dashboard</title>
     <style>
-        /* আপনার দেখানো ডিজাইনের মতো স্টাইল */
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fb; display: flex; justify-content: center; padding: 40px; }
         .container { width: 100%; max-width: 450px; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         h2 { color: #111827; font-size: 22px; margin-bottom: 20px; text-align: center; }
@@ -14,7 +13,7 @@
         input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #cbd5e0; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
         button { width: 100%; padding: 12px; background-color: #111827; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.3s; }
         button:hover { background-color: #374151; }
-        .status-msg { margin-top: 10px; font-size: 13px; text-align: center; }
+        .status-msg { margin-top: 10px; font-size: 13px; text-align: center; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -24,15 +23,15 @@
 
     <div class="section">
         <label>New Extension Password</label>
-        <input type="password" id="new_ext_pass" placeholder="Enter new password">
+        <input type="text" id="new_ext_pass" placeholder="Enter new password">
         <button onclick="updateExtensionPassword()">Update Extension Password</button>
         <div id="msg" class="status-msg"></div>
     </div>
 </div>
 
 <script>
-    // আপনার Supabase ক্রেডেনশিয়ালস
-    const SB_URL = "https://jqvywuxersbovdhglkrw.supabase.co";
+    // আপনার Supabase ক্রেডেনশিয়ালস (স্ক্রিনশট অনুযায়ী ভেরিফাইড)
+    const SB_URL = "https://jqvywuxersbovdhglkrw.supabase.co"; 
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impxdnl3dXhlcnNib3ZkaGdsa3J3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMDA3MzgsImV4cCI6MjA4NzY3NjczOH0.xb6lz3WSDNeMQO0BKNXBxpXREYwvGMW0ynHV-8IW-9w";
 
     async function updateExtensionPassword() {
@@ -44,9 +43,11 @@
             return;
         }
 
+        msgDiv.innerHTML = "Processing...";
+
         try {
-            // আপনার ex_name টেবিলের ID 1 এর পাসওয়ার্ড (nasim33) আপডেট করবে
-            const response = await fetch(`${SB_URL}/rest/v1/ex_name?id=eq.1`, {
+            // আপনার টেবিলে যেহেতু ID নেই, তাই আমরা is_active=TRUE ফিল্টার ব্যবহার করছি
+            const response = await fetch(`${SB_URL}/rest/v1/ex_name?is_active=eq.TRUE`, {
                 method: 'PATCH',
                 headers: {
                     "apikey": SB_KEY,
@@ -59,9 +60,10 @@
 
             if (response.ok) {
                 msgDiv.innerHTML = "<span style='color: green;'>✅ Success! Database Updated.</span>";
-                document.getElementById('new_ext_pass').value = ""; // বক্স খালি করা
+                // ব্রাউজারে ডাটাবেজ আপডেট হয়েছে কি না তা সাথে সাথে দেখার জন্য ১ সেকেন্ড পর পেজ রিফ্রেশ হবে
+                setTimeout(() => { location.reload(); }, 2000);
             } else {
-                msgDiv.innerHTML = "<span style='color: red;'>❌ Update Failed!</span>";
+                msgDiv.innerHTML = "<span style='color: red;'>❌ Update Failed! Check Supabase RLS.</span>";
             }
         } catch (error) {
             msgDiv.innerHTML = "<span style='color: red;'>❌ Connection Error!</span>";
